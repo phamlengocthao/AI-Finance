@@ -1,8 +1,10 @@
+import fs from "fs";
 import { callModelAPI } from "../services/model.service.js";
 
 export const analyzeReport = async (req, res) => {
   try {
-    // chưa upload file
+    /* ================= CHECK FILE ================= */
+
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -11,21 +13,39 @@ export const analyzeReport = async (req, res) => {
     }
 
     const filePath = req.file.path;
-    const originalName = req.file.originalname;
+    const fileName = req.file.originalname;
+    const fileSize = req.file.size;
 
-    console.log("📄 File received:", originalName);
+    console.log("📄 File received:", fileName);
+    console.log("📁 Path:", filePath);
+    console.log("📦 Size:", fileSize);
 
-    //  GỌI MODEL
-    const modelResult = await callModelAPI(filePath);
+    /* ================= CALL AI MODEL ================= */
 
-    // TRẢ NGUYÊN KẾT QUẢ MODEL
-    return res.json({
-      success: true,
-      data: modelResult,
+    const result = await callModelAPI(filePath);
+
+    console.log("🤖 AI analysis finished");
+
+    /* ================= DELETE FILE AFTER ANALYZE ================= */
+
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.log("⚠️ Cannot delete file:", err);
+      }
     });
 
-  } catch (err) {
-    console.error("Analyze error:", err);
+    /* ================= RESPONSE ================= */
+
+    return res.json({
+      success: true,
+      file: fileName,
+      data: result,
+    });
+
+  } catch (error) {
+
+    console.error("❌ Analyze error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Analyze failed",

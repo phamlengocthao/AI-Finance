@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import robotImg from "../assets/robot.png";
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -9,14 +10,33 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
           
           {/* Brand */}
-          <div>
-            <div className="font-bold text-lg text-gray-800 dark:text-gray-100 mb-2">
-              🤖 AI Finance
-            </div>
-            <p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed">
-              {t("footer.desc")}
-            </p>
+        <div className="flex flex-col items-center text-center">
+          {/* Logo và icon */}
+            <div className="relative mb-4">
+            {/* Background glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full blur-xl opacity-30 animate-pulse"></div>
+            
+            {/* Logo image */}
+            <img
+              src={robotImg}
+              alt="AI Robot"
+              className="relative w-20 h-20 object-contain mx-auto"
+            />
           </div>
+
+          {/* Title với hiệu ứng glow */}
+          <h1 
+            className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent mb-2"
+            style={{ textShadow: '0 0 20px rgba(59,130,246,0.5)' }}
+          >
+            AI Finance
+          </h1>
+
+          {/* Description */}
+          <p className="text-gray-500 dark:text-gray-400 text-xs max-w-[200px] mx-auto leading-relaxed">
+            {t("footer.desc")}
+          </p>
+        </div>
 
           {/* Product */}
           <div>

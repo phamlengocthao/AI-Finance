@@ -3,16 +3,41 @@ import { useTranslation } from "react-i18next";
 
 export default function UploadFile({ onResult }) {
   const { t } = useTranslation();
+
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  /* ================= HANDLE FILE ================= */
+
   const handleFile = (e) => {
     const selectedFile = e.target.files[0];
+
     if (!selectedFile) return;
+
+    /* check file size (10MB) */
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      setError("File quá lớn (tối đa 10MB)");
+      return;
+    }
+
+    /* check file type */
+    const allowedTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/msword",
+    ];
+
+    if (!allowedTypes.includes(selectedFile.type)) {
+      setError("Chỉ hỗ trợ PDF / DOC / DOCX");
+      return;
+    }
+
     setFile(selectedFile);
     setError("");
   };
+
+  /* ================= ANALYZE ================= */
 
   const handleAnalyze = async () => {
     if (!file) {
@@ -32,19 +57,22 @@ export default function UploadFile({ onResult }) {
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Phân tích thất bại");
-
       const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        throw new Error(result.message || "Phân tích thất bại");
+      }
+
       console.log("AI RESULT:", result);
 
-      if (result.success && result.data) {
-        onResult?.(result.data);
-      } else {
-        throw new Error("Dữ liệu AI không hợp lệ");
-      }
+      onResult?.(result.data);
+
     } catch (err) {
+
       console.error(err);
-      setError("Không thể phân tích báo cáo");
+
+      setError(err.message || "Không thể phân tích báo cáo");
+
     } finally {
       setLoading(false);
     }
@@ -52,11 +80,12 @@ export default function UploadFile({ onResult }) {
 
   return (
     <section className="max-w-3xl mx-auto mt-10 px-4">
-      <div className="bg-gradient-to-br from-indigo-50 to-white dark:from-gray-900 dark:to-gray-800
+      <div
+        className="bg-gradient-to-br from-indigo-50 to-white dark:from-gray-900 dark:to-gray-800
         border-2 border-dashed border-indigo-300 dark:border-indigo-600
-        rounded-2xl p-10 text-center">
-
-        <div className="text-5xl mb-4">📊</div>
+        rounded-2xl p-10 text-center"
+      >
+        <div className="text-5xl mb-4">📁</div>
 
         <h2 className="text-lg font-semibold mb-2">
           {t("upload.title")}
@@ -70,11 +99,15 @@ export default function UploadFile({ onResult }) {
         <label className="inline-block cursor-pointer">
           <input
             type="file"
-            accept=".pdf,.doc,.docx,.xls,.xlsx"
+            accept=".pdf,.doc,.docx"
             onChange={handleFile}
             className="hidden"
           />
-          <span className="inline-block bg-indigo-600 text-white px-6 py-2 rounded-full text-sm font-medium">
+
+          <span
+            className="inline-block bg-indigo-600 text-white px-6 py-2
+            rounded-full text-sm font-medium"
+          >
             📂 {t("common.choose_file")}
           </span>
         </label>
@@ -85,16 +118,19 @@ export default function UploadFile({ onResult }) {
           </div>
         )}
 
-        {/* Analyze */}
+        {/* Analyze button */}
+
         <div className="mt-8">
           <button
             onClick={handleAnalyze}
             disabled={loading || !file}
             className="bg-gradient-to-r from-indigo-600 to-purple-600
-              text-white px-8 py-3 rounded-xl font-semibold
-              hover:opacity-90 disabled:opacity-50"
+            text-white px-8 py-3 rounded-xl font-semibold
+            hover:opacity-90 disabled:opacity-50"
           >
-            {loading ? t("upload.analyzing") : t("common.analyze")}
+            {loading
+              ? "🤖 AI đang phân tích..."
+              : t("common.analyze")}
           </button>
         </div>
 
