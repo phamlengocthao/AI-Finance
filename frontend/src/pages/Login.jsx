@@ -2,6 +2,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import robotImg from "../assets/robot.png";
 
 
 
@@ -50,7 +51,13 @@ export default function Login() {
           {/* Header với gradient */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-8 text-center">
             <div className="w-20 h-20 bg-white/20 backdrop-blur rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-4xl">🤖</span>
+              <span className="text-4xl">
+                 <img
+                      src={robotImg}
+                      alt="AI Robot"
+                      className="w-12 h-12 object-contain"
+                    />
+              </span>
             </div>
             <h1 className="text-2xl font-bold text-white">AI Finance</h1>
             <p className="text-blue-100 mt-1">
@@ -174,7 +181,7 @@ export default function Login() {
 
         {/* Footer note */}
         <p className="text-xs text-center mt-4 text-gray-500 dark:text-gray-400">
-          © 2026 AI Finance. {t("auth.privacy")}
+         {t("footer.copyright")}
         </p>
       </div>
     </div>

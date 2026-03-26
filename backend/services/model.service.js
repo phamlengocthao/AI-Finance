@@ -1,69 +1,57 @@
-import fs from "fs";
-import path from "path";
+import axios from "axios";
 
-export const callModelAPI = async (filePath) => {
+export const callModelAPI = async (text) => {
   try {
-    console.log("🤖 Fake AI analyzing file...");
+    console.log("🤖 Calling AI...");
 
-    /* ================= READ FILE ================= */
+    const prompt = `
+    Bạn là chuyên gia phân tích tài chính.
 
-    const ext = path.extname(filePath).toLowerCase();
+    Dựa vào dữ liệu sau:
+    ${text}
 
-    let text = "";
+    Hãy trả về JSON theo format:
 
-    if (ext === ".txt") {
-      text = fs.readFileSync(filePath, "utf-8");
-    } else {
-      text = "File content preview is not available for this format yet.";
+    {
+      "overview": {
+        "score": number (0-100),
+        "risk": "Low | Medium | High",
+        "growth": "Low | Moderate | High"
+      },
+      "summary": [string],
+      "metrics": {
+        "financial_health_score": number,
+        "analysis_confidence": string
+      },
+      "recommendations": [string]
     }
+    `;
 
-    /* ================= SIMPLE ANALYSIS ================= */
-
-    const length = text.length;
-
-    const score = Math.floor(Math.random() * 40) + 60;
-
-    const risks = ["Low", "Medium", "High"];
-    const risk = risks[Math.floor(Math.random() * risks.length)];
-
-    const growths = ["Low", "Moderate", "High"];
-    const growth = growths[Math.floor(Math.random() * growths.length)];
-
-    /* ================= RETURN STRUCTURE ================= */
-
-    return {
-      overview: {
-        score,
-        risk,
-        growth,
+    const response = await axios.post(
+      "https://api.openai.com/v1/responses",
+      {
+        model: "gpt-4.1-mini",
+        input: prompt,
       },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-      summary: [
-        "The uploaded report was successfully processed.",
-        "Initial automated analysis has been completed.",
-        "Further AI insights will be available after integrating the full AI model.",
-      ],
+    const output = response.data.output[0].content[0].text;
 
-      metrics: {
-        file_size: `${(length / 1024).toFixed(2)} KB`,
-        detected_pages: Math.floor(Math.random() * 10) + 1,
-        analysis_confidence: `${Math.floor(Math.random() * 20) + 80}%`,
-        financial_health_score: score,
-      },
+    // parse JSON từ AI
+    const parsed = JSON.parse(output);
 
-      recommendations: [
-        "Review key financial indicators.",
-        "Validate AI insights with manual review.",
-        "Integrate the full AI analysis model for deeper insights.",
-      ],
-
-      rawText: text.slice(0, 2000) || "No text preview available.",
-    };
+    return parsed;
 
   } catch (error) {
 
-    console.error("❌ Fake AI error:", error);
+    console.error("❌ AI error:", error.response?.data || error.message);
 
-    throw new Error("Fake AI analysis failed");
+    throw new Error("AI analysis failed");
   }
 };

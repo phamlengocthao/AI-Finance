@@ -1,43 +1,42 @@
-import multer from "multer";
-import path from "path";
+// import multer from "multer";
 
-/* ================= STORAGE CONFIG ================= */
+// /* ================= MEMORY STORAGE ================= */
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
+// const storage = multer.memoryStorage();
 
-  filename: (req, file, cb) => {
-    const uniqueName = Date.now() + "-" + file.originalname;
-    cb(null, uniqueName);
-  },
-});
+// /* ================= FILE FILTER ================= */
 
-/* ================= FILE FILTER ================= */
+// const fileFilter = (req, file, cb) => {
+//   const allowedMimeTypes = [
+//     "application/pdf",
+//     "text/plain",
 
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = [".pdf", ".doc", ".docx", ".txt"];
+//     // image
+//     "image/png",
+//     "image/jpeg",
 
-  const ext = path.extname(file.originalname).toLowerCase();
+//     // excel
+//     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+//     "application/vnd.ms-excel",
+//   ];
 
-  if (allowedTypes.includes(ext)) {
-    cb(null, true);
-  } else {
-    cb(new Error("Only PDF, DOC, DOCX, TXT files allowed"));
-  }
-};
+//   if (allowedMimeTypes.includes(file.mimetype)) {
+//     cb(null, true);
+//   } else {
+//     cb(new Error("File type not supported"), false);
+//   }
+// };
 
-/* ================= MULTER CONFIG ================= */
+// /* ================= MULTER CONFIG ================= */
 
-const upload = multer({
-  storage: storage,
+// const upload = multer({
+//   storage,
 
-  limits: {
-    fileSize: 10 * 1024 * 1024,
-  },
+//   limits: {
+//     fileSize: 10 * 1024 * 1024, // 10MB
+//   },
 
-  fileFilter: fileFilter,
-});
+//   fileFilter,
+// });
 
-export default upload;
+// export default upload;

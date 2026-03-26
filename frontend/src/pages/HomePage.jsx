@@ -79,9 +79,9 @@ export default function HomePage() {
                   {/* Avatar/Icon */}
                   <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-full flex items-center justify-center mb-6">
                     <img
-                      src="../assets/Cute pastel robot mascot.png"
+                      src={robotImg}
                       alt="AI Robot"
-                      className="w-16 h-16 mx-auto mb-3"
+                      className="w-12 h-12 object-contain"
                     />
                   </div>
 

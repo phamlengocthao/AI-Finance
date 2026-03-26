@@ -72,9 +72,9 @@ export default function Footer() {
                   {t("footer.privacy")}
                 </a>
               </li>
-              <li className="hover:text-indigo-600 cursor-pointer">
+              {/* <li className="hover:text-indigo-600 cursor-pointer">
                 {t("footer.contact")}
-              </li>
+              </li> */}
             </ul>
           </div>
         </div>

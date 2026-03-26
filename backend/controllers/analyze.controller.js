@@ -1,7 +1,10 @@
-import fs from "fs";
+import { extractTextFromFile } from "../services/file.service.js";
 import { callModelAPI } from "../services/model.service.js";
+import fs from "fs/promises";
 
 export const analyzeReport = async (req, res) => {
+  let filePath = null;
+
   try {
     /* ================= CHECK FILE ================= */
 
@@ -12,43 +15,50 @@ export const analyzeReport = async (req, res) => {
       });
     }
 
-    const filePath = req.file.path;
-    const fileName = req.file.originalname;
-    const fileSize = req.file.size;
+    filePath = req.file.path;
 
-    console.log("📄 File received:", fileName);
-    console.log("📁 Path:", filePath);
-    console.log("📦 Size:", fileSize);
+    console.log("📄 File:", req.file.originalname);
 
-    /* ================= CALL AI MODEL ================= */
+    /* ================= EXTRACT TEXT ================= */
 
-    const result = await callModelAPI(filePath);
+    const text = await extractTextFromFile(req.file);
 
-    console.log("🤖 AI analysis finished");
+    if (!text || text.length < 20) {
+      throw new Error("File content too short or unreadable");
+    }
 
-    /* ================= DELETE FILE AFTER ANALYZE ================= */
+    /* ================= CALL AI ================= */
 
-    fs.unlink(filePath, (err) => {
-      if (err) {
-        console.log("⚠️ Cannot delete file:", err);
-      }
-    });
+    const result = await callModelAPI(text);
+
+    console.log("🤖 AI done");
+
+    /* ================= DELETE FILE ================= */
+
+    if (filePath) {
+      await fs.unlink(filePath).catch(() => {});
+    }
 
     /* ================= RESPONSE ================= */
 
     return res.json({
       success: true,
-      file: fileName,
+      file: req.file.originalname,
       data: result,
     });
 
   } catch (error) {
 
-    console.error("❌ Analyze error:", error);
+    console.error("❌ Analyze error:", error.message);
+
+    // đảm bảo luôn xóa file
+    if (filePath) {
+      await fs.unlink(filePath).catch(() => {});
+    }
 
     return res.status(500).json({
       success: false,
-      message: "Analyze failed",
+      message: error.message || "Analyze failed",
     });
   }
 };
